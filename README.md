@@ -4,7 +4,7 @@ Simulação de reservatório de petóleo utilizando MRST no contexto da discipli
 
 ## Objetivo
 
-O trabalho tem por objetivo criar e simular um reservatório contendo água e óleo com quatro poços (dois produtores e dois injetores) com raio de 0,5 metros. O reservatório deve ser simulado por 8 anos com passo de tempo de 30 dias.
+O trabalho tem por objetivo criar e simular um reservatório contendo dois fluidos (água e óleo) e quatro poços (dois produtores e dois injetores) ao longo de oito anos para um determinado conjuto de propriedades (rocha, fluidos e poços).
 
 ## Características do reservatório
 
@@ -12,7 +12,8 @@ O trabalho tem por objetivo criar e simular um reservatório contendo água e ó
 - Tamanho da malha: 40x60x7;
 - Dimensão: 200x300x35 metros;
 - As duas camadas mais profundas saturadas com água;
-- As cinco camadas superiores saturadas com óleo a 1 barsa;
+- As cinco camadas superiores saturadas com óleo;
+- Pressão inicial de 1 barsa;
 
 ### Rocha
 - Permeabilidade: x = y = 300 mD, z = 10 mD;
@@ -26,7 +27,7 @@ O trabalho tem por objetivo criar e simular um reservatório contendo água e ó
 - Permeabilidade relativa para os dois fluidos: 1,3;
 
 ### Poços
-- Produtor 1: vertical (células 1 a 11999), controlado por BHP (120 barsa);
+- Produtor 1: vertical (células 1 a 12001), controlado por BHP (120 barsa);
 - Produtor 2: horizontal (células 40 a 840), controlado por BHP (120 barsa);
 - Injetor 1: horizontal (células 15961 a 16761), controlado por BHP (210 barsa);
 - Injetor 2: vertical (células 12000 a 16800), controlado por BHP (210 barsa);
