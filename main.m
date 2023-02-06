@@ -1,37 +1,33 @@
 %% Petroleum Reservoir Simulation
-% Autores: Francisco Henrique
+% Autores: Francisco Henrique da Silva Costa (francisco.henrique@aluno.unb.br)
 %          Matheus Teixeira de Sousa (teixeira.sousa@aluno.unb.br)
 %
-% Este c�digo cria e simula um reservat�rio de petr�leo contendo dois
-% fluidos (�gua e �leo) e quatro po�os (dois produtores e dois injetores)
+% Este código cria e simula um reservatório de petróleo contendo dois
+% fluidos (água e óleo) e quatro poços (dois produtores e dois injetores)
 % ao longo de oito anos para um determinado conjuto de propriedades
-% (rocha, fluidos e po�os).
+% (rocha, fluidos e poços).
 
 mrstModule add incomp
 
-% Cria a malha para simula��o
+% Cria a malha para simulação
 gravity reset on
-nx = 40; % n�mero de c�lulas em x
-ny = 60; % n�mero de c�lulas em y
-nz = 7; % n�mero de c�lulas em z
+nx = 40; % número de células em x
+ny = 60; % número de células em y
+nz = 7; % número de células em z
 celldim = [nx, ny, nz];
 physdim = [200, 300, 35]*meter;
 G = cartGrid(celldim, physdim);
 G = computeGeometry(G);
 
-% Apresenta a malha criada
-clf;
-plotGrid(G)
-view(30,50)
-
 %% Cria a rocha
 
-gravity off % Disable gravity
+gravity off % Disabilita a gravidade
 perm = [300*10^-3, 300*10^-3, 10*10^-3]*darcy;
 poro = 0.25;
 rock = makeRock(G, perm, poro);
 
-%% Cria o fluido na ordem [�gua, �leo]
+%% Cria o fluido na ordem [água, óleo]
+% Todos os parâmetros recebem o valor da água e depois do óleo
 
 viscosities = [0.00045, 0.001]*Pascal*second;
 densities = [1010, 800]*kilogram/meter^3;
@@ -40,74 +36,85 @@ fluid = initSimpleFluid('mu' , viscosities, ...
                         'rho', densities, ...
                         'n'  , rel_permeability);
 
-%% Cria��o dos po�os
+%% Criação dos poços
+% Todos os poços são controlados por BHP com o valor definido no problema,
+% os produtores são saturados com óleo e os injetores com água e todos
+% possuem raio de 0,5 metros. Quando a direção não é definida, o poço
+% é vertical (diração z).
 
 % Produtores
-cells = 1:nx*ny:12001; % Define as c�lulas na vertical de 1 a 12001
+cells = 1:nx*ny:12001; % Define as células na vertical de 1 a 12001
 W = addWell([], G, rock, cells, ...
             'Type', 'bhp' , 'Val', 120*barsa(), ...
             'Radius', 0.5*meter, 'InnerProduct', 'ip_tpf', ...
             'Comp_i', [0, 1], 'Name', 'Prod1');
 
-cells = 40:nx:840; % Define as c�lulas na horizontal de 40 a 840
+cells = 40:nx:840; % Define as células na horizontal de 40 a 840
 W = addWell(W, G, rock, cells, 'Dir', 'x', ...
             'Type', 'bhp' , 'Val', 120*barsa(), ...
             'Radius', 0.5*meter, 'InnerProduct', 'ip_tpf', ...
             'Comp_i', [0, 1], 'Name', 'Prod2');
 
 % Injetores
-cells = 15961:nx:16761; % Define as c�lulas na horizontal de 15961 a 16761
+cells = 15961:nx:16761; % Define as células na horizontal de 15961 a 16761
 W = addWell(W, G, rock, cells, 'Dir', 'x', ...
             'Type', 'bhp' , 'Val', 210*barsa(), ...
             'Radius', 0.5*meter, 'InnerProduct', 'ip_tpf', ...
             'Comp_i', [1, 0], 'Name', 'Inje1');
 
-cells = 12000:nx*ny:16800; % Define as c�lulas na vertical de 12000  a 16800
+cells = 12000:nx*ny:16800; % Define as células na vertical de 12000  a 16800
 W = addWell(W, G, rock, cells, ...
             'Type', 'bhp' , 'Val', 210*barsa(), ...
             'Radius', 0.5*meter, 'InnerProduct', 'ip_tpf', ...
             'Comp_i', [1, 0], 'Name', 'Inje2');
 
-% Define as condi��es inicias do reservat�rio
+% Define as condições inicias do reservatório
 p0 = 1*barsa;
-s0 = [repmat([0, 1], nx*ny*5, 1); repmat([1, 0], nx*ny*2, 1)]; % 5 camadas de �leo e 2 de �gua
+% Saturação inicial como 5 camadas de óleo e 2 de água
+s0 = [repmat([0, 1], nx*ny*5, 1); repmat([1, 0], nx*ny*2, 1)];
 sol = initState(G, [], p0, s0);
 
-% Compute transmissibility and define function handles for solvers to avoid
-% having to retype parameters that stay constant throught the simulation
+% Cria as funções auxiliares para solução da simulação
+% e calcula a transmissibilidade
 T = computeTrans(G, rock);
 psolve = @(state) incompTPFA(state, G, T, fluid, 'wells', W);
 tsolve = @(state, dT) implicitTransport(state, G, dT, rock, fluid, 'wells', W);
 
-% Limpa o gr�fico e mostra os po�os
-clf
-plotGrid(G, 'FaceAlpha', 0, 'EdgeAlpha', .1)
-plotWell(G, W);
-view(30,50);
-%% Mostra o gr�fico de press�o no reservat�rio
+%% Salva as condições inciais
 
+% Salva o valor de saturação inicial
+init_sat_w = sol.s(:,1);
+
+% Salva a saturação inicial de células específicas
+saturation = sol.s;
+sat_cell_1 = saturation(1,1);
+sat_cell_2900 = saturation(2900,2);
+sat_cell_6300 = saturation(6300,1);
+sat_cell_9350 = saturation(9350,2);
+s0_cells = [sat_cell_1, sat_cell_2900, sat_cell_6300, sat_cell_9350];
+
+% Salva o valor de pressão inicial
 sol = psolve(sol);
-clf;
-plotCellData(G, sol.pressure)
-colorbar, view(30,50)
+init_press = sol.pressure;
 
-%% Simula o reservat�rio
+%% Simula o reservatório
 
-% Set up static parts of the plot
-clf
-plotGrid(G, 'FaceAlpha', 0, 'EdgeAlpha', .1)
-plotWell(G, W);
-view(30,50); pause(1)
-hs = [];  % handle for saturation plot, empty initially
-
-% Perform simulation
+% Define o passo de tempo (dT) e o intervalo de simulação (int_max)
 dT = 30*day;
-solutions = cell(20,1);
-for i = 1:20 % Simula por um tempo gen�rico
+int_max = 12*8; % Considera todos os meses com 30 dias
+solutions = cell(int_max,1);
+
+% Para cada iteração, salva os dados num vetor
+for i = 1:int_max
     sol = tsolve(sol, dT);
     sol = psolve(sol);
     solutions{i} = sol;
-    delete(hs)
-    hs = plotCellData(G, sol.s(:,2), sol.s(:,2)>0.05);
-    drawnow, pause(.5)
 end
+
+% Salva as condições finais de saturação e pressão
+final_sat_o = sol.s(:, 2);
+final_press = sol.pressure;
+
+% Salva um arquivo com os dados para análise
+save('data_solutions.mat', 'solutions', 'G', 'W', 'init_press', ...
+     'init_sat_w', 'final_press', 'final_sat_o', 's0_cells');
