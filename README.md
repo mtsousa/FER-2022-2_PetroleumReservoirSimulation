@@ -13,7 +13,7 @@ O trabalho tem por objetivo criar e simular um reservatório contendo dois fluid
 - Dimensão: 200x300x35 metros;
 - As duas camadas mais profundas saturadas com água;
 - As cinco camadas superiores saturadas com óleo;
-- Pressão inicial de 1 barsa;
+- Pressão inicial de 1 bar;
 
 ### Rocha
 - Permeabilidade: x = y = 300 mD, z = 10 mD;
@@ -27,9 +27,13 @@ O trabalho tem por objetivo criar e simular um reservatório contendo dois fluid
 - Permeabilidade relativa para os dois fluidos: 1,3;
 
 ### Poços
-- Produtor 1: vertical (células 1 a 12001), controlado por BHP (120 barsa);
-- Produtor 2: horizontal (células 40 a 840), controlado por BHP (120 barsa);
-- Injetor 1: horizontal (células 15961 a 16761), controlado por BHP (210 barsa);
-- Injetor 2: vertical (células 12000 a 16800), controlado por BHP (210 barsa);
+- Produtor 1: vertical (células 1 a 12001), controlado por BHP (120 bar);
+- Produtor 2: horizontal (células 40 a 840), controlado por BHP (120 bar);
+- Injetor 1: horizontal (células 15961 a 16761), controlado por BHP (210 bar);
+- Injetor 2: vertical (células 12000 a 16800), controlado por BHP (210 bar);
 
 ## Resultados
+
+|  Saturação de óleo ao longo do tempo  |
+|:-------------------------------------:|
+|           ![](imgs/sat.gif)           |

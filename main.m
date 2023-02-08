@@ -45,26 +45,26 @@ fluid = initSimpleFluid('mu' , viscosities, ...
 % Produtores
 cells = 1:nx*ny:12001; % Define as células na vertical de 1 a 12001
 W = addWell([], G, rock, cells, ...
-            'Type', 'bhp' , 'Val', 120*barsa(), ...
+            'Type', 'bhp' , 'Val', 120*barsa, ...
             'Radius', 0.5*meter, 'InnerProduct', 'ip_tpf', ...
             'Comp_i', [0, 1], 'Name', 'Prod1');
 
 cells = 40:nx:840; % Define as células na horizontal de 40 a 840
 W = addWell(W, G, rock, cells, 'Dir', 'x', ...
-            'Type', 'bhp' , 'Val', 120*barsa(), ...
+            'Type', 'bhp' , 'Val', 120*barsa, ...
             'Radius', 0.5*meter, 'InnerProduct', 'ip_tpf', ...
             'Comp_i', [0, 1], 'Name', 'Prod2');
 
 % Injetores
 cells = 15961:nx:16761; % Define as células na horizontal de 15961 a 16761
 W = addWell(W, G, rock, cells, 'Dir', 'x', ...
-            'Type', 'bhp' , 'Val', 210*barsa(), ...
+            'Type', 'bhp' , 'Val', 210*barsa, ...
             'Radius', 0.5*meter, 'InnerProduct', 'ip_tpf', ...
             'Comp_i', [1, 0], 'Name', 'Inje1');
 
 cells = 12000:nx*ny:16800; % Define as células na vertical de 12000  a 16800
 W = addWell(W, G, rock, cells, ...
-            'Type', 'bhp' , 'Val', 210*barsa(), ...
+            'Type', 'bhp' , 'Val', 210*barsa, ...
             'Radius', 0.5*meter, 'InnerProduct', 'ip_tpf', ...
             'Comp_i', [1, 0], 'Name', 'Inje2');
 
@@ -82,20 +82,18 @@ tsolve = @(state, dT) implicitTransport(state, G, dT, rock, fluid, 'wells', W);
 
 %% Salva as condições inciais
 
-% Salva o valor de saturação inicial
+% Salva os valores de saturação e pressão iniciais
 init_sat_w = sol.s(:,1);
+init_press = sol.pressure;
 
 % Salva a saturação inicial de células específicas
 saturation = sol.s;
+sat_0 = saturation;
 sat_cell_1 = saturation(1,1);
 sat_cell_2900 = saturation(2900,2);
 sat_cell_6300 = saturation(6300,1);
 sat_cell_9350 = saturation(9350,2);
 s0_cells = [sat_cell_1, sat_cell_2900, sat_cell_6300, sat_cell_9350];
-
-% Salva o valor de pressão inicial
-sol = psolve(sol);
-init_press = sol.pressure;
 
 %% Simula o reservatório
 
@@ -105,6 +103,9 @@ int_max = 12*8; % Considera todos os meses com 30 dias
 solutions = cell(int_max,1);
 
 % Para cada iteração, salva os dados num vetor
+sol = psolve(sol);
+% Salva a pressão depois do cálculo da distribuição de pressão
+press_1 = sol.pressure;
 for i = 1:int_max
     sol = tsolve(sol, dT);
     sol = psolve(sol);
@@ -117,4 +118,5 @@ final_press = sol.pressure;
 
 % Salva um arquivo com os dados para análise
 save('data_solutions.mat', 'solutions', 'G', 'W', 'init_press', ...
-     'init_sat_w', 'final_press', 'final_sat_o', 's0_cells');
+     'init_sat_w', 'final_press', 'final_sat_o', 's0_cells', ...
+     'press_1', 'sat_0');
