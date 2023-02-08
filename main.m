@@ -21,7 +21,7 @@ G = computeGeometry(G);
 
 %% Cria a rocha
 
-gravity off % Disabilita a gravidade
+gravity off % Desabilita a gravidade
 perm = [300*10^-3, 300*10^-3, 10*10^-3]*darcy;
 poro = 0.25;
 rock = makeRock(G, perm, poro);
