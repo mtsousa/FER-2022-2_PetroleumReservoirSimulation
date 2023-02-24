@@ -1,6 +1,6 @@
 # FER-2022-2_PetroleumReservoirSimulation
 
-Simulação de reservatório de petóleo utilizando MRST no contexto da disciplina Fundamentos de Engenharia de Reservatório da Universidade de Brasília.
+Simulação de reservatório de petróleo utilizando MRST no contexto da disciplina Fundamentos de Engenharia de Reservatório da Universidade de Brasília.
 
 ## Objetivo
 
